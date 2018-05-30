@@ -14,6 +14,8 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Flexbox from 'flexbox-react';
 
 
 const muiTheme = createMuiTheme({});
@@ -36,26 +38,30 @@ class CSearch extends Component{
     search: {
       query: ''
     },
-    results: []
+    results: [],
+    hasSearched : false
   }
 
   searchdb = (event) => {
     if(event.keyCode === 13 && this.state.search.query !== ''){
-            fetch('http://localhost:4000/zedder/search?query='+this.state.search.query)
-              .then(response => response.json())
-              .then(response => this.setState({ results: response.data}))
-              .catch(err => console.error(err));
+      this.setState({hasSearched: true});
+      fetch('http://localhost:4000/zedder/search?query='+this.state.search.query)
+        .then(response => response.json())
+        .then(response => this.setState({ results: response.data}))
+        .catch(err => console.error(err));
     }
   }
 
   checkInput = (e) => {
-    this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '')}});
-    if(this.state.results.length !== 0)
+    this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '').substring(0, 20)}});
+    if(this.state.hasSearched === true){
       this.setState({results: []});
+      this.setState({hasSearched: false});
+    }
   }
 
   render(){
-    const { search, results } = this.state;
+    const { search, results, hasSearched } = this.state;
     return(
       <div className="Search">
         <TextField
@@ -68,6 +74,11 @@ class CSearch extends Component{
           onChange={this.checkInput}
           onKeyDown={this.searchdb}
         />
+        {results.length === 0 && hasSearched &&
+          <Flexbox style={{justifyContent: "center"}}>
+           <CircularProgress/>
+          </Flexbox>
+        }
         <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
           {results.length > 0 &&
             <Paper>
@@ -105,7 +116,9 @@ class CAppBar extends Component{
 class CTopTable extends Component {
 
   state = {
-    shifts: []
+    allTime: [],
+    month: [],
+    week: []
   }
 
   componentDidMount(){
@@ -115,7 +128,11 @@ class CTopTable extends Component {
   getShifts = _ => {
     fetch('http://localhost:4000/zedder')
       .then(response => response.json())
-      .then(response => this.setState({ shifts: response.data}))
+      .then(response => this.setState({
+        allTime: response.allTime,
+        month: response.month,
+        week: response.week
+      }))
       .catch(err => console.error(err))
   }
 
@@ -127,16 +144,48 @@ class CTopTable extends Component {
     </TableRow>
   );
 
+  resetRank = _ => {
+    rank=1;
+  }
+
   render() {
-    const { shifts } = this.state
+    const { allTime, month, week } = this.state
     return (
       <div>
-        {shifts.length > 0 &&
-        <ReactCSSTransitionGroup transitionName="TableAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
+        {week.length === 0 &&
+          <Flexbox style={{justifyContent: "center", paddingTop: "15%"}}>
+           <CircularProgress/>
+          </Flexbox>
+        }
+      {week.length > 0 &&
+        <div>
+        <h1 style={{textAlign: 'center'}}>College Ave</h1>
+        <Flexbox className="Container">
+          <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
+            <Typography variant="headline" color="default" align="center">
+              Week
+            </Typography>
+            <Paper>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Employee</TableCell>
+                    <TableCell numeric>Coverages</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.resetRank()}
+                  {week.map(this.renderShifts)}
+                </TableBody>
+              </Table>
+            </Paper>
+          </ReactCSSTransitionGroup>
+        <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
           <Typography variant="headline" color="default" align="center">
-            All Time
+            Month
           </Typography>
-          <Paper className="Top10Table">
+          <Paper>
             <Table>
               <TableHead>
                 <TableRow>
@@ -146,13 +195,35 @@ class CTopTable extends Component {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {shifts.map(this.renderShifts)}
+                {this.resetRank()}
+                {month.map(this.renderShifts)}
               </TableBody>
             </Table>
           </Paper>
         </ReactCSSTransitionGroup>
-      }
-      </div>
+        <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
+            <Typography variant="headline" color="default" align="center">
+              All Time
+            </Typography>
+            <Paper>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Employee</TableCell>
+                    <TableCell numeric>Coverages</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.resetRank()}
+                  {allTime.map(this.renderShifts)}
+                </TableBody>
+              </Table>
+            </Paper>
+        </ReactCSSTransitionGroup>
+      </Flexbox>
+    </div>
+    }</div>
     );
   }
 }

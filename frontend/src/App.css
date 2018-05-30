@@ -22,12 +22,21 @@
   font-size: large;
 }
 
+.Container {
+  justify-content: center;
+}
+
 .Top10Table {
-  margin-left: auto;
-  margin-right: auto;
   border: 0px solid black;
-  width: 350px;
-  display: grid;
+  max-width: 350px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  transition: all 70ms ease-in;
+  transform: scale(1);
+}
+
+.Top10Table:hover{
+  transform: scale(1.03);
 }
 
 .Search {
@@ -39,35 +48,35 @@
 
 .SearchResults-enter{
   opacity: 0.01;
-  transform: translateY(-25px);
+  transform: translateY(-25px) scale(0.8);
 }
 
 .SearchResults-enter.SearchResults-enter-active{
   opacity: 1;
-  transform: translateY(0px);
+  transform: translateY(0px) scale(1);
   transition: all 0.1s ease-out;
 }
 
 .SearchResults-leave{
   opacity: 1;
-  transform: translateY(0px);
+  transform: translateY(0px) scale(1);
   transition: all 0.1s ease-out;
 }
 
 .SearchResults-leave-active{
   opacity: 0.01;
-  transform: translateY(-25px);
+  transform: translateY(-25px) scale(0.8);
 }
 
-.TableAnim-appear{
+.AllTimeAnim-appear{
   opacity: 0.01;
-  transform: translateX(-200px);
+  transform: translateY(200px);
 }
 
-.TableAnim-appear.TableAnim-appear-active{
+.AllTimeAnim-appear.AllTimeAnim-appear-active{
   opacity: 1;
   transform: translateX(0px);
-  transition: all 0.5s ease-out;
+  transition: all 0.3s ease-out;
 }
 
 @keyframes App-logo-spin {

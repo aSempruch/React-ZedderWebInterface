@@ -23,29 +23,23 @@ app.get('/', (req, res) => {
 
 const selectAll = "SELECT covered, COUNT(covered) AS count FROM Data WHERE covered<>'Open' GROUP BY covered ORDER BY count DESC limit 10"
 var queries = new Array(3);
+var arrResults = new Array(3);
 var date = new Date();
 
 app.get('/zedder', (req, res) => {
 	res.set('Access-Control-Allow-Origin', '*');
-	/*var date = new Date();
-	const startMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
-	var d_startWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
-	d_startWeek.setDate(d_startWeek.getDate() + 1);
-	const startWeek = d_startWeek.toISOString().split('T')[0];*/
 	const backMonth = date.getDate();
 	const backWeek = date.getDay()+1;
 
 	queries[0] = selectAll;
 	queries[1] = "SELECT covered, COUNT(covered) AS count \
 								FROM Data \
-								WHERE (covered<>'Open' AND coveredTime BETWEEN CURDATE() - INTERVAL " + backMonth + " DAY AND CURDATE())\
+								WHERE (covered<>'Open' AND coveredTime BETWEEN NOW() - INTERVAL " + backMonth + " DAY AND NOW())\
 								GROUP BY covered ORDER BY count DESC limit 10";
 	queries[2] = "SELECT covered, COUNT(covered) AS count \
 								FROM Data \
-								WHERE (covered<>'Open' AND coveredTime BETWEEN CURDATE() - INTERVAL " + backWeek + " DAY AND CURDATE())\
+								WHERE (covered<>'Open' AND coveredTime BETWEEN NOW() - INTERVAL " + backWeek + " DAY AND NOW())\
 								GROUP BY covered ORDER BY count DESC limit 10";
-
-	var arrResults = new Array(3);
 	querydb(0);
 
 	function querydb(index){
@@ -77,7 +71,7 @@ app.get('/zedder', (req, res) => {
 app.get('/zedder/search', (req, res) => {
 	res.set('Access-Control-Allow-Origin', '*');
 	var{query} = req.query;
-	query = query.replace(/[^0-9a-z]/gi, '');
+	query = query.replace(/[^0-9a-z]/gi, '').substring(0,20);
 	connection.query(
 		"SELECT covered, COUNT(covered) AS count FROM Data WHERE (covered<>'Open' AND covered='"+ query +"') LIMIT 1",
 		(err, results) => {
