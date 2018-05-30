@@ -1,0 +1,76 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  animation: App-logo-spin infinite 20s linear;
+  height: 80px;
+}
+
+.App-header {
+  background-color: #222;
+  height: 150px;
+  padding: 20px;
+  color: white;
+}
+
+.App-title {
+  font-size: 1.5em;
+}
+
+.App-intro {
+  font-size: large;
+}
+
+.Top10Table {
+  margin-left: auto;
+  margin-right: auto;
+  border: 0px solid black;
+  width: 350px;
+  display: grid;
+}
+
+.Search {
+  margin: auto;
+  width: 200px;
+  border: 0px solid green;
+  padding: 10px;
+}
+
+.SearchResults-enter{
+  opacity: 0.01;
+  transform: translateY(-25px);
+}
+
+.SearchResults-enter.SearchResults-enter-active{
+  opacity: 1;
+  transform: translateY(0px);
+  transition: all 0.1s ease-out;
+}
+
+.SearchResults-leave{
+  opacity: 1;
+  transform: translateY(0px);
+  transition: all 0.1s ease-out;
+}
+
+.SearchResults-leave-active{
+  opacity: 0.01;
+  transform: translateY(-25px);
+}
+
+.TableAnim-appear{
+  opacity: 0.01;
+  transform: translateX(-200px);
+}
+
+.TableAnim-appear.TableAnim-appear-active{
+  opacity: 1;
+  transform: translateX(0px);
+  transition: all 0.5s ease-out;
+}
+
+@keyframes App-logo-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
