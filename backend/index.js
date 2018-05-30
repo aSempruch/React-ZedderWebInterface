@@ -22,23 +22,56 @@ app.get('/', (req, res) => {
 });
 
 const selectAll = "SELECT covered, COUNT(covered) AS count FROM Data WHERE covered<>'Open' GROUP BY covered ORDER BY count DESC limit 10"
+var queries = new Array(3);
+var date = new Date();
 
 app.get('/zedder', (req, res) => {
 	res.set('Access-Control-Allow-Origin', '*');
-	connection.query(selectAll, (err, results) => {
-		if(err)
-			return res.send(err);
-		else{
-			for(row in results){
-				var covered = results[row].covered;
-				if(!(covered === "Open"))
-					results[row].covered = covered.substring(0, covered.length-3).replace(/[0-9]/g, '');;
-			}
-			return res.json({
-				data: results
+	/*var date = new Date();
+	const startMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString().split('T')[0];
+	var d_startWeek = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay());
+	d_startWeek.setDate(d_startWeek.getDate() + 1);
+	const startWeek = d_startWeek.toISOString().split('T')[0];*/
+	const backMonth = date.getDate();
+	const backWeek = date.getDay()+1;
+
+	queries[0] = selectAll;
+	queries[1] = "SELECT covered, COUNT(covered) AS count \
+								FROM Data \
+								WHERE (covered<>'Open' AND coveredTime BETWEEN CURDATE() - INTERVAL " + backMonth + " DAY AND CURDATE())\
+								GROUP BY covered ORDER BY count DESC limit 10";
+	queries[2] = "SELECT covered, COUNT(covered) AS count \
+								FROM Data \
+								WHERE (covered<>'Open' AND coveredTime BETWEEN CURDATE() - INTERVAL " + backWeek + " DAY AND CURDATE())\
+								GROUP BY covered ORDER BY count DESC limit 10";
+
+	var arrResults = new Array(3);
+	querydb(0);
+
+	function querydb(index){
+		if(index < 3){
+			connection.query(queries[index], (err, results) => {
+				if(err)
+					return res.send(err);
+				else{
+					for(row in results){
+						var covered = results[row].covered;
+						if(!(covered === "Open"))
+							results[row].covered = covered.substring(0, covered.length-3).replace(/[0-9]/g, '');;
+					}
+					arrResults[index] = results;
+				}
+				querydb(index+1);
 			});
 		}
-	});
+		else{
+			return res.json({
+				allTime: arrResults[0],
+				month: arrResults[1],
+				week: arrResults[2]
+			});
+		}
+	}
 });
 
 app.get('/zedder/search', (req, res) => {
