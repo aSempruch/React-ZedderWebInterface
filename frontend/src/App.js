@@ -16,9 +16,15 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Flexbox from 'flexbox-react';
+import icon from 'icon.png';
 
 
-const muiTheme = createMuiTheme({});
+const muiTheme = createMuiTheme({
+  palette: {
+    primary: { main: '#1897ad' }, // Purple and green play nicely together.
+    secondary: { main: '#0f6a7a' }, // This is just green.A700 as hex.
+  },
+});
 var rank = 1;
 
 class Main extends Component{
@@ -38,30 +44,41 @@ class CSearch extends Component{
     search: {
       query: ''
     },
-    results: [],
-    hasSearched : false
+    finalResults : ('')
   }
 
   searchdb = (event) => {
     if(event.keyCode === 13 && this.state.search.query !== ''){
       this.setState({hasSearched: true});
+      this.setState({finalResults: (<CircularProgress/>)})
       fetch('http://localhost:4000/zedder/search?query='+this.state.search.query)
         .then(response => response.json())
-        .then(response => this.setState({ results: response.data}))
+        .then(response => this.setState({finalResults: (
+            <Paper>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell>
+                      <p key="results">{this.state.search.query} covered {response.data[0].count} shift(s)</p>
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </Paper>
+        )}))
         .catch(err => console.error(err));
     }
   }
 
   checkInput = (e) => {
     this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '').substring(0, 20)}});
-    if(this.state.hasSearched === true){
-      this.setState({results: []});
-      this.setState({hasSearched: false});
+    if(this.state.finalResults != ('')){
+      this.setState({finalResults : ('')});
     }
   }
 
   render(){
-    const { search, results, hasSearched } = this.state;
+    const { search, finalResults } = this.state;
     return(
       <div className="Search">
         <TextField
@@ -74,26 +91,11 @@ class CSearch extends Component{
           onChange={this.checkInput}
           onKeyDown={this.searchdb}
         />
-        {results.length === 0 && hasSearched &&
+      <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
           <Flexbox style={{justifyContent: "center"}}>
-           <CircularProgress/>
+            {finalResults}
           </Flexbox>
-        }
-        <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
-          {results.length > 0 &&
-            <Paper>
-              <Table>
-                <TableBody>
-                  <TableRow>
-                    <TableCell>
-                      <p key="results">{search.query} covered {results[0].count} shift(s)</p>
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </Paper>
-          }
-        </ReactCSSTransitionGroup>
+      </ReactCSSTransitionGroup>
       </div>
     );
   }
@@ -102,10 +104,10 @@ class CSearch extends Component{
 class CAppBar extends Component{
   render(){
     return(
-      <AppBar position="static" color="primary">
+      <AppBar position="static" color="default">
         <Toolbar>
           <Typography variant="title" color="inherit">
-            Zedder
+            <img src={icon} alt='Zedder'/>
           </Typography>
         </Toolbar>
       </AppBar>
@@ -159,13 +161,13 @@ class CTopTable extends Component {
         }
       {week.length > 0 &&
         <div>
-        <h1 style={{textAlign: 'center'}}>College Ave</h1>
+        <Typography variant="headline" color="primary" style={{textAlign: 'center', padding:'10px'}}>College Ave</Typography>
         <Flexbox className="Container">
           <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-            <Typography variant="headline" color="default" align="center">
+            <Paper>
+            <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
               Week
             </Typography>
-            <Paper>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -182,10 +184,10 @@ class CTopTable extends Component {
             </Paper>
           </ReactCSSTransitionGroup>
         <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-          <Typography variant="headline" color="default" align="center">
+          <Paper>
+          <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
             Month
           </Typography>
-          <Paper>
             <Table>
               <TableHead>
                 <TableRow>
@@ -202,10 +204,10 @@ class CTopTable extends Component {
           </Paper>
         </ReactCSSTransitionGroup>
         <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-            <Typography variant="headline" color="default" align="center">
+          <Paper>
+            <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
               All Time
             </Typography>
-            <Paper>
               <Table>
                 <TableHead>
                   <TableRow>

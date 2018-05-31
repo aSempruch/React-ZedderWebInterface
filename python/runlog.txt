@@ -1,0 +1,15 @@
+
+Sleeping for 35 seconds
+New Run at : 15:51:36
+Scanning week of 2018-04-14
+Found shift at Alex Graduate
+Shift already scanned
+Found shift at Alex Graduate
+Shift already scanned
+Found shift at CACC
+Shift already scanned
+Found shift at RSC
+Shift already scanned
+Found shift at RUAB
+Shift had weird formating
+sent notification: RUAB this week: Friday Unable to find time
