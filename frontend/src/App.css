@@ -46,12 +46,12 @@
   padding: 10px;
 }
 
-.SearchResults-enter{
+.SearchResults-appear{
   opacity: 0.01;
   transform: translateY(-25px) scale(0.8);
 }
 
-.SearchResults-enter.SearchResults-enter-active{
+.SearchResults-appear.SearchResults-appear-active{
   opacity: 1;
   transform: translateY(0px) scale(1);
   transition: all 0.1s ease-out;

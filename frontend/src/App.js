@@ -25,7 +25,6 @@ const muiTheme = createMuiTheme({
     secondary: { main: '#0f6a7a' }, // This is just green.A700 as hex.
   },
 });
-var rank = 1;
 
 class Main extends Component{
   render(){
@@ -54,6 +53,7 @@ class CSearch extends Component{
       fetch('http://localhost:4000/zedder/search?query='+this.state.search.query)
         .then(response => response.json())
         .then(response => this.setState({finalResults: (
+          <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
             <Paper>
               <Table>
                 <TableBody>
@@ -65,6 +65,7 @@ class CSearch extends Component{
                 </TableBody>
               </Table>
             </Paper>
+          </ReactCSSTransitionGroup>
         )}))
         .catch(err => console.error(err));
     }
@@ -72,7 +73,7 @@ class CSearch extends Component{
 
   checkInput = (e) => {
     this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '').substring(0, 20)}});
-    if(this.state.finalResults != ('')){
+    if(this.state.finalResults !== ('')){
       this.setState({finalResults : ('')});
     }
   }
@@ -91,11 +92,9 @@ class CSearch extends Component{
           onChange={this.checkInput}
           onKeyDown={this.searchdb}
         />
-      <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
           <Flexbox style={{justifyContent: "center"}}>
             {finalResults}
           </Flexbox>
-      </ReactCSSTransitionGroup>
       </div>
     );
   }
@@ -118,9 +117,9 @@ class CAppBar extends Component{
 class CTopTable extends Component {
 
   state = {
-    allTime: [],
-    month: [],
-    week: []
+    alltime: (''),
+    month: (''),
+    week: (<CircularProgress style={{marginTop: '5%'}}/>)
   }
 
   componentDidMount(){
@@ -130,102 +129,61 @@ class CTopTable extends Component {
   getShifts = _ => {
     fetch('http://localhost:4000/zedder')
       .then(response => response.json())
-      .then(response => this.setState({
-        allTime: response.allTime,
-        month: response.month,
-        week: response.week
-      }))
+      .then(response => this.renderTable(response))
       .catch(err => console.error(err))
   }
 
-  renderShifts = ({covered, count}) => (
-    <TableRow key={rank}>
-      <TableCell className="TableRank TCell">{rank++}</TableCell>
+  renderTable = (response) => {
+    var tables = [
+      {object: 'week', title: 'Week'},
+      {object: 'month', title: 'Month'},
+      {object: 'allTime', title: 'All Time'},
+    ];
+
+    tables.map((name) =>
+      this.setState({[name.object]: (
+        <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
+          <Paper>
+            <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
+              {name.title}
+            </Typography>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Rank</TableCell>
+                    <TableCell>Employee</TableCell>
+                    <TableCell numeric>Coverages</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {response[name.object].map(this.renderShifts)}
+                </TableBody>
+              </Table>
+            </Paper>
+        </ReactCSSTransitionGroup>
+      )})
+    );
+  }
+
+  renderShifts = ({covered, count}, rank) => {
+    return(<TableRow key={rank}>
+      <TableCell className="TableRank TCell">{rank+1}</TableCell>
       <TableCell className="TableCovered TCell">{covered}</TableCell>
       <TableCell numeric className="TableCount TCell">{count}</TableCell>
-    </TableRow>
-  );
-
-  resetRank = _ => {
-    rank=1;
-  }
+    </TableRow>);
+  };
 
   render() {
     const { allTime, month, week } = this.state
     return (
       <div>
-        {week.length === 0 &&
-          <Flexbox style={{justifyContent: "center", paddingTop: "15%"}}>
-           <CircularProgress/>
-          </Flexbox>
-        }
-      {week.length > 0 &&
-        <div>
         <Typography variant="headline" color="primary" style={{textAlign: 'center', padding:'10px'}}>College Ave</Typography>
-        <Flexbox className="Container">
-          <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-            <Paper>
-            <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
-              Week
-            </Typography>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rank</TableCell>
-                    <TableCell>Employee</TableCell>
-                    <TableCell numeric>Coverages</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.resetRank()}
-                  {week.map(this.renderShifts)}
-                </TableBody>
-              </Table>
-            </Paper>
-          </ReactCSSTransitionGroup>
-        <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-          <Paper>
-          <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
-            Month
-          </Typography>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Rank</TableCell>
-                  <TableCell>Employee</TableCell>
-                  <TableCell numeric>Coverages</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {this.resetRank()}
-                {month.map(this.renderShifts)}
-              </TableBody>
-            </Table>
-          </Paper>
-        </ReactCSSTransitionGroup>
-        <ReactCSSTransitionGroup className="Top10Table" transitionName="AllTimeAnim" transitionAppear={true} transitionAppearTimeout={5000} transitionEnterTimeout={5000} transitionEnter={false} transitionLeave={false}>
-          <Paper>
-            <Typography variant="title" color="primary" align="center" style={{paddingTop: '20px'}}>
-              All Time
-            </Typography>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Rank</TableCell>
-                    <TableCell>Employee</TableCell>
-                    <TableCell numeric>Coverages</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {this.resetRank()}
-                  {allTime.map(this.renderShifts)}
-                </TableBody>
-              </Table>
-            </Paper>
-        </ReactCSSTransitionGroup>
-      </Flexbox>
-    </div>
-    }</div>
+          <Flexbox className="Container">
+            {week}
+            {month}
+            {allTime}
+          </Flexbox>
+      </div>
     );
   }
 }

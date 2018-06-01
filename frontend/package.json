@@ -8,6 +8,7 @@
     "flexbox-react": "^4.4.0",
     "react": "^16.4.0",
     "react-addons-css-transition-group": "^15.6.2",
+    "react-delay": "^0.1.0",
     "react-dom": "^16.4.0",
     "react-motion": "^0.5.2",
     "react-scripts": "1.1.4",
