@@ -68,22 +68,41 @@ app.get('/zedder', (req, res) => {
 	}
 });
 
+var arrSearchResults = new Array(3);
+
 app.get('/zedder/search', (req, res) => {
 	res.set('Access-Control-Allow-Origin', '*');
+	const backMonth = date.getDate();
+	const backWeek = date.getDay()+1;
 	var{query} = req.query;
 	query = query.replace(/[^0-9a-z]/gi, '').substring(0,20);
-	connection.query(
-		"SELECT covered, COUNT(covered) AS count FROM Data WHERE (covered<>'Open' AND covered='"+ query +"') LIMIT 1",
-		(err, results) => {
-			if(err)
-				return res.send(err);
-			else{
-				results[0].covered = query;
-				return res.json({
-					data: results
-				});
+
+	queries[0] = "SELECT covered, COUNT(covered) AS count FROM Data WHERE (covered<>'Open' AND covered='"+ query +"') LIMIT 1";
+	queries[1] = "SELECT covered, COUNT(covered) AS count FROM Data WHERE (covered<>'Open' AND coveredTime BETWEEN NOW() - INTERVAL " + backMonth + " DAY AND NOW() AND covered='"+ query +"') LIMIT 1";
+	queries[2] = "SELECT covered, COUNT(covered) AS count FROM Data WHERE (covered<>'Open' AND coveredTime BETWEEN NOW() - INTERVAL " + backWeek + " DAY AND NOW() AND covered='"+ query +"') LIMIT 1";
+
+	querydb(0);
+
+	function querydb(index){
+		if(index < 3){
+			connection.query(queries[index], (err, results) => {
+					if(err)
+						return res.send(err);
+					else{
+						results[0].covered = query;
+						arrSearchResults[index] = results;
+					}
+					querydb(index+1);
+			});
 		}
-	});
+		else{
+			return res.json({
+				allTime: arrSearchResults[0],
+				month: arrSearchResults[1],
+				week: arrSearchResults[2]
+			});
+		}
+	}
 });
 
 var port = 4000;

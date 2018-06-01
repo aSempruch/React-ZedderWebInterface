@@ -56,10 +56,23 @@ class CSearch extends Component{
           <ReactCSSTransitionGroup transitionName="SearchResults" transitionAppear={true} transitionAppearTimeout={500} transitionEnterTimeout={500} transitionEnter={true} transitionLeave={true} transitionLeaveTimeout={500}>
             <Paper>
               <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Week</TableCell>
+                    <TableCell>Month</TableCell>
+                    <TableCell style={{whiteSpace: 'nowrap'}}>All Time</TableCell>
+                  </TableRow>
+                </TableHead>
                 <TableBody>
                   <TableRow>
-                    <TableCell>
-                      <p key="results">{this.state.search.query} covered {response.data[0].count} shift(s)</p>
+                    <TableCell numeric>
+                      {response.week[0].count}
+                    </TableCell>
+                    <TableCell numeric>
+                      {response.month[0].count}
+                    </TableCell>
+                    <TableCell numeric>
+                      {response.allTime[0].count}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -72,7 +85,7 @@ class CSearch extends Component{
   }
 
   checkInput = (e) => {
-    this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '').substring(0, 20)}});
+    this.setState({ search: {query: e.target.value.replace(/[^0-9a-z]/gi, '').substring(0, 20).toLowerCase()}});
     if(this.state.finalResults !== ('')){
       this.setState({finalResults : ('')});
     }
@@ -92,7 +105,7 @@ class CSearch extends Component{
           onChange={this.checkInput}
           onKeyDown={this.searchdb}
         />
-          <Flexbox style={{justifyContent: "center"}}>
+      <Flexbox style={{justifyContent: "center"}}>
             {finalResults}
           </Flexbox>
       </div>
